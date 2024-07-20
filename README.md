@@ -34,8 +34,8 @@ This is the branch that upload testing features for backup, not for trail!
 ## References
 [1]R. Python, “Fourier Transforms With scipy.fft: Python Signal Processing – Real Python,” realpython.com. 
 <br>https://realpython.com/python-scipy-fft/
-[2]“Plotting Various Sounds on Graphs using Python and Matplotlib,” GeeksforGeeks, Jul. 26, 2020. 
+<br>[2]“Plotting Various Sounds on Graphs using Python and Matplotlib,” GeeksforGeeks, Jul. 26, 2020. 
 <br>https://www.geeksforgeeks.org/plotting-various-sounds-on-graphs-using-python-and-matplotlib/
-[3]“How to convert image sequence to video using opencv and python(010),” 
+<br>[3]“How to convert image sequence to video using opencv and python(010),” 
 <br>www.youtube.com. https://www.youtube.com/watch?v=ZcqodhMuv4o (accessed May 12, 2023).
 ‌
