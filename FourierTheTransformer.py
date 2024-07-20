@@ -13,6 +13,7 @@ import time
 import wave
 import shutil
 import datetime
+import resource
 import numpy as np
 from matplotlib import rc
 from pydub import AudioSegment
@@ -23,10 +24,15 @@ from matplotlib import pyplot as plt
 startTime = time.time()
 
 #Set target mp3 and chose plt styling
-target = "Skrillex - First Of The Year"
+target = "Skrillex - First Of The Year (Arrangement Nano)"
+resolution = 300
+dimension = (9, 16)
+ylim = 1e8
+fps = 30
 lineColor = "green"
 font = {'fontname':'Agency FB'}
-gColor = '#300030FF'
+majorGridColor = '#300030FF'
+minorGridColor = '#30003080'
 fontColor = "#DFDFDFFF"
 gbColor = "#404040FF"
 mbColor = "#202020FF"
@@ -40,9 +46,9 @@ if os.path.exists(targetDir)!=True:
     os.mkdir(targetDir)
 if os.path.exists(targetDir+audioDir)!=True:
     os.mkdir(targetDir+audioDir)
+    shutil.move(target+".mp3", targetDir+audioDir+target+".mp3")
 if os.path.exists(targetDir+outputDir)!=True:
     os.mkdir(targetDir+outputDir)
-shutil.move(target+".mp3", targetDir+audioDir+target+".mp3")
 
 sound = AudioSegment.from_mp3(targetDir+audioDir+target+".mp3")#Convert mp3 stereo to wav mono
 sound = sound.set_channels(1)
@@ -72,8 +78,8 @@ audioTime = np.linspace(
     num = len(signal) 
 )
 
-DURATION = 1/30  # 1/30 sec
-frameDuration = int(f_rate*DURATION) # 1/30sec
+DURATION = 1/fps  # 1/fps sec
+frameDuration = int(f_rate*DURATION) # 1/fps
 # Number of samples in normalized_tone
 N = frameDuration
 itter = 0
@@ -83,22 +89,24 @@ try:
         # Note the extra 'r' at the front
         yf = rfft(signal[i:i+frameDuration])
         xf = rfftfreq(N, 1/f_rate)
-        print("Processing frame: " + str(itter) + " of " + "{:.3f}".format(len(signal)/frameDuration-1) + " Which is " + "{:.3f}".format(itter/30) + " seconds. Progress: " + "{:.3f}".format((i/len(signal))*100) + "% " + "Time taking on execution: " + str(datetime.timedelta(seconds=int(time.time()-startTime))), end='\r')
-        plt.figure(figsize=(16,9), facecolor=mbColor)
+        print("Processing frame: " + str(itter) + " of " + "{:.3f}".format(len(signal)/frameDuration-1) + " Which is " + "{:.3f}".format(itter*DURATION) + " seconds. Progress: " + "{:.3f}".format((i/len(signal))*100) + "% " + "Time taking on execution: " + str(datetime.timedelta(seconds=int(time.time()-startTime))), end='\r')
+        plt.figure(figsize=dimension, facecolor=mbColor, num=1, clear=True)
         plt.axes().set_facecolor(gbColor)
-        plt.ylim(0.01, 10000000)
+        plt.ylim(0.01, ylim)
         plt.title(target, fontsize=64, **font, weight='bold', color=fontColor)
         plt.xlabel('Frequency (Hz)', fontsize=32, **font, color=fontColor)
         plt.ylabel('Magnitude', fontsize=32, **font, color=fontColor)
         #plt.plot(xf, np.abs(yf))#For normal view
         plt.semilogy(xf, np.abs(yf), color=lineColor)#For log view
         plt.margins(x=0)
-        plt.xticks(fontsize=16, **font, color=fontColor)
-        plt.yticks(fontsize=16, **font, color=fontColor)
-        plt.grid(which='major', color=gColor, linewidth=0.8)
-        plt.savefig(targetDir+outputDir+target+str(itter), dpi=300)
+        plt.xticks(np.arange(24000, step=2000), fontsize=16, **font, color=fontColor)
+        plt.yticks(np.logspace(-2,9,num=9+2+1, base=10,dtype='float'), fontsize=16, **font, color=fontColor)
+        plt.grid(which='major', color=majorGridColor, linewidth=1)
+        plt.grid(which='minor', color=minorGridColor, linestyle=":", linewidth=0.5)
+        plt.minorticks_on()
+        plt.savefig(targetDir+outputDir+target+str(itter), dpi=resolution)
         #plt.clf()
-        plt.close()
+        #plt.close()
         itter+=1
 except Exception as e:
     pass
@@ -125,7 +133,7 @@ del size[2]
 size.reverse()
 # print(size)
 
-video = cv2.VideoWriter(out_video_full_path, cv2_fourcc, 30, size) #output video name, fourcc, fps, size
+video = cv2.VideoWriter(out_video_full_path, cv2_fourcc, fps, size) #output video name, fourcc, fps, size
 
 for i in range(len(img)): 
     video.write(cv2.imread(img[i]))
